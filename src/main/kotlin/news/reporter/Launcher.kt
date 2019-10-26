@@ -28,7 +28,9 @@ class Launcher : AbstractVerticle() {
 
             vertx.deployVerticle(
                     TopHeadlinesListenerVerticle::class.java,
-                    DeploymentOptions().setConfig(it.result().getJsonObject("top-headlines")),
+                    DeploymentOptions()
+                            .setWorker(true)
+                            .setConfig(it.result().getJsonObject("top-headlines")),
                     THROW_EXCEPTION_IF_DEPLOYMENT_FAILS("TopHeadlinesListener"))
         }
     }

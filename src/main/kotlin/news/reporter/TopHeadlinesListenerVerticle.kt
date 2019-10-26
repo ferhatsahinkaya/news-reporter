@@ -14,7 +14,7 @@ class TopHeadlinesListenerVerticle : AbstractVerticle() {
                 StringDeserializer(),
                 StringDeserializer())
 
-        consumer.handler { record -> println(record.value()) }
+        consumer.handler { record -> println("${Thread.currentThread().id} - record ${record.value()}") }
 
         consumer.subscribe(setOf(config().getString("topic"))) {
             if (it.succeeded()) promise.complete() else promise.fail(it.cause())
