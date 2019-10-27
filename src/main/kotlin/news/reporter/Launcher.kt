@@ -23,15 +23,24 @@ class Launcher : AbstractVerticle() {
         configRetriever.getConfig {
             vertx.deployVerticle(
                     HttpServerVerticle::class.java,
-                    DeploymentOptions().setConfig(it.result().getJsonObject("http-server")),
-                    THROW_EXCEPTION_IF_DEPLOYMENT_FAILS("HttpServer"))
+                    DeploymentOptions().setConfig(JsonObject()
+                            .put("http-server", it.result().getJsonObject("http-server"))
+                            .put("data-store", it.result().getJsonObject("data-store"))),
+                    THROW_EXCEPTION_IF_DEPLOYMENT_FAILS("HttpServerVerticle"))
 
             vertx.deployVerticle(
-                    TopHeadlinesListenerVerticle::class.java,
+                    ReceiveTopHeadlineVerticle::class.java,
                     DeploymentOptions()
                             .setWorker(true)
                             .setConfig(it.result().getJsonObject("top-headlines")),
-                    THROW_EXCEPTION_IF_DEPLOYMENT_FAILS("TopHeadlinesListener"))
+                    THROW_EXCEPTION_IF_DEPLOYMENT_FAILS("ReceiveTopHeadlineVerticle"))
+
+            vertx.deployVerticle(
+                    StoreTopHeadlineVerticle::class.java,
+                    DeploymentOptions()
+                            .setWorker(true)
+                            .setConfig(it.result().getJsonObject("data-store")),
+                    THROW_EXCEPTION_IF_DEPLOYMENT_FAILS("StoreTopHeadLineVerticle"))
         }
     }
 }

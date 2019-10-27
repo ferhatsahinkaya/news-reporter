@@ -1,10 +1,10 @@
 package news.reporter
 
 import io.vertx.core.AbstractVerticle
-import io.vertx.core.AsyncResult
 import io.vertx.core.Promise
-import io.vertx.core.eventbus.Message
 import io.vertx.core.http.HttpServer
+import io.vertx.core.json.JsonObject
+import io.vertx.ext.mongo.MongoClient
 import io.vertx.ext.web.Router
 import kotlin.properties.Delegates.notNull
 
@@ -12,24 +12,26 @@ class HttpServerVerticle : AbstractVerticle() {
     private var httpServer: HttpServer by notNull()
 
     override fun start(promise: Promise<Void>) {
+        val mongoClient = MongoClient.createShared(vertx, config().getJsonObject("data-store"))
+
         val router: Router = Router.router(vertx)
         router.get("/top-headlines")
                 .handler { routingContext ->
-                    vertx.eventBus()
-                            .request("top-headlines", "get headlines") { ar: AsyncResult<Message<String>> ->
-                                if (ar.succeeded()) {
-                                    routingContext.response()
-                                            .write(ar.result().body())
-                                            .end()
-                                } else {
-                                    routingContext.fail(500)
-                                }
-                            }
+                    mongoClient.find("top-headlines", JsonObject()) { ar ->
+                        if (ar.succeeded()) ar.result().forEach {
+                            println(it.toString())
+                            routingContext
+                                    .response()
+                                    .setChunked(true)
+                                    .write(it.toString())
+                        }
+                        routingContext.response().end()
+                    }
                 }
 
         httpServer = vertx.createHttpServer()
                 .requestHandler(router)
-                .listen(config().getInteger("http.port")) {
+                .listen(config().getJsonObject("http-server").getInteger("http.port")) {
                     if (it.succeeded()) promise.complete() else promise.fail(it.cause())
                 }
     }

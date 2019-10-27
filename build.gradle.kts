@@ -38,6 +38,7 @@ dependencies {
     implementation("io.vertx:vertx-web:3.8.3")
     implementation("io.vertx:vertx-config:3.8.3")
     implementation("io.vertx:vertx-kafka-client:3.8.3")
+    implementation("io.vertx:vertx-mongo-client:3.8.3")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
