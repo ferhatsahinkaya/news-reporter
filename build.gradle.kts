@@ -26,14 +26,6 @@ repositories {
 dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("com.sparkjava:spark-core:2.9.1")
-    implementation("com.netflix.feign:feign-core:8.18.0")
-    implementation("io.github.openfeign:feign-okhttp:10.4.0")
-    implementation("io.github.openfeign:feign-jackson:10.4.0")
-    implementation("io.github.openfeign:feign-slf4j:10.4.0")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.9")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.9")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.10.0")
     implementation("io.vertx:vertx-core:3.8.3")
     implementation("io.vertx:vertx-web:3.8.3")
     implementation("io.vertx:vertx-config:3.8.3")
@@ -42,11 +34,18 @@ dependencies {
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
-    testImplementation("com.github.tomakehurst:wiremock:2.24.1")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.2")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.5.2")
     testImplementation("org.hamcrest:hamcrest-all:1.3")
-    testImplementation("org.awaitility:awaitility:4.0.1")
+    testImplementation("io.vertx:vertx-junit5:3.8.3")
+    testImplementation("com.salesforce.kafka.test:kafka-junit5:3.1.1")
+    testImplementation("com.salesforce.kafka.test:kafka-junit-core:3.1.1")
+    testImplementation("org.apache.kafka:kafka_2.12:2.3.0")
+    testImplementation("org.apache.kafka:kafka-clients:2.3.0")
+    testImplementation("org.junit.vintage:junit-vintage-engine:5.5.2")
+    testImplementation("org.junit.platform:junit-platform-launcher:1.5.2")
+    testImplementation("org.apache.curator:curator-framework:4.0.1")
+    testImplementation("org.apache.curator:curator-test:4.0.1")
 
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.5.2")
 }
@@ -54,6 +53,13 @@ dependencies {
 application {
     // Define the main class for the application
     mainClassName = "news.reporter.app.ApplicationKt"
+}
+
+tasks.test {
+    useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
 }
 
 tasks.register<Jar>("uberJar") {

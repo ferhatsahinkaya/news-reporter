@@ -2,7 +2,6 @@ package news.reporter
 
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Promise
-import io.vertx.core.json.JsonObject
 import io.vertx.kafka.client.consumer.KafkaReadStream
 import org.apache.kafka.common.serialization.StringDeserializer
 
@@ -15,7 +14,7 @@ class ReceiveTopHeadlineVerticle : AbstractVerticle() {
                 StringDeserializer())
 
         consumer.handler { record ->
-            vertx.eventBus().publish("top-headline", JsonObject(record.value()))
+            vertx.eventBus().publish("top-headline", record.value())
 
             println("${Thread.currentThread().id} - published record ${record.value()}")
         }

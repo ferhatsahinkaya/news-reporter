@@ -17,16 +17,19 @@ class HttpServerVerticle : AbstractVerticle() {
         val router: Router = Router.router(vertx)
         router.get("/top-headlines")
                 .handler { routingContext ->
-                    mongoClient.find("top-headlines", JsonObject()) { ar ->
-                        if (ar.succeeded()) ar.result().forEach {
-                            println(it.toString())
-                            routingContext
-                                    .response()
-                                    .setChunked(true)
-                                    .write(it.toString())
-                        }
-                        routingContext.response().end()
-                    }
+                    mongoClient.findBatch("top-headlines", JsonObject())
+                            .handler {
+                                println(it.toString())
+                                routingContext
+                                        .response()
+                                        .setChunked(true)
+                                        .write(it.toString())
+                            }.endHandler {
+                                routingContext.response().end()
+                            }
+                            .exceptionHandler {
+                                it.printStackTrace()
+                            }
                 }
 
         httpServer = vertx.createHttpServer()
