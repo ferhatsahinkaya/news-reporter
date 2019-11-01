@@ -23,9 +23,10 @@ import kotlin.random.Random.Default.nextInt
 class ReceiveTopHeadlineVerticleTest {
 //    private val zookeeperServer = TestingServer(2181)
 
-    private val topic = "the-topic-15"
+    private val topic = "the-topic-16"
+    private val zookeeperUrl = "localhost:2181"
     private val properties = mapOf(
-            "zookeeper.connect" to "localhost:2181",
+            "zookeeper.connect" to zookeeperUrl,
             "host.name" to "localhost",
             "port" to "9999",
             "auto.create.topics.enable" to "true")
@@ -34,7 +35,8 @@ class ReceiveTopHeadlineVerticleTest {
 
     private val producer = KafkaProducer(mapOf(
             "bootstrap.servers" to "${properties["host.name"]}:${properties["port"]}",
-            "client.id" to "test-client-id"),
+            "client.id" to "test-client-id",
+            "auto.create.topics.enable" to "true"),
             StringSerializer(),
             StringSerializer())
 
