@@ -6,8 +6,6 @@ import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import io.vertx.junit5.VertxExtension
 import io.vertx.junit5.VertxTestContext
-import kafka.server.KafkaConfig
-import kafka.server.KafkaServerStartable
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
@@ -17,37 +15,28 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.testcontainers.containers.KafkaContainer
+import org.testcontainers.junit.jupiter.Container
+import org.testcontainers.junit.jupiter.Testcontainers
 import java.time.Instant
+import java.util.concurrent.TimeUnit.SECONDS
 
+@Testcontainers
 @ExtendWith(VertxExtension::class)
-class ReceiveTopHeadlineVerticleTest {
-//    private val zookeeperServer = TestingServer(2181, true)
+class ReceiveTopHeadlineVerticleIntegrationTest {
 
-    private val topic = "the-topic-80"
-    private val zookeeperUrl = "localhost:2181"
-    private val properties = mapOf(
-            "zookeeper.connect" to zookeeperUrl,
-            "host.name" to "localhost",
-            "port" to "9999")
-
-    private val producer = KafkaProducer(mapOf(
-            "bootstrap.servers" to "${properties["host.name"]}:${properties["port"]}",
-            "client.id" to "test-client-id",
-            "auto.create.topics.enable" to "true"),
-            StringSerializer(),
-            StringSerializer())
-
-    private val kafka = KafkaServerStartable(KafkaConfig(properties))
+    @Container
+    private val kafka = KafkaContainer()
+    private val topic = "the-topic-61"
 
     @BeforeEach
     fun setUp(vertx: Vertx, testContext: VertxTestContext) {
-        kafka.startup()
+        kafka.start()
 
         vertx.deployVerticle(ReceiveTopHeadlineVerticle(),
                 DeploymentOptions()
-                        .setWorker(true)
                         .setConfig(JsonObject()
-                                .put("brokers", JsonArray(listOf("${properties["host.name"]}:${properties["port"]}")))
+                                .put("brokers", JsonArray(listOf(kafka.bootstrapServers)))
                                 .put("group", "consumer-group")
                                 .put("topic", topic)),
                 testContext.completing())
@@ -55,15 +44,19 @@ class ReceiveTopHeadlineVerticleTest {
 
     @AfterEach
     fun tearDown(vertx: Vertx) {
-        producer.close()
         vertx.close()
-        kafka.shutdown()
-//        zookeeperServer.stop()
+        kafka.stop()
     }
 
     @Test
     fun shouldForwardTopHeadlinesReceivedFromKafkaTopicToEventBus(vertx: Vertx, testContext: VertxTestContext) {
         val message = Instant.now().toString()
+        val producer = KafkaProducer(mapOf(
+                "bootstrap.servers" to kafka.bootstrapServers,
+                "client.id" to "test-client-id",
+                "auto.create.topics.enable" to "true"),
+                StringSerializer(),
+                StringSerializer())
 
         vertx.eventBus()
                 .consumer<String>("top-headline") {
@@ -72,10 +65,10 @@ class ReceiveTopHeadlineVerticleTest {
                     testContext.completeNow()
                 }
 
-        Thread.sleep(10000)
-
         println("Before send")
         producer.send(ProducerRecord(topic, message))
+                .get(3, SECONDS)
         println("After send")
+        Thread.sleep(10000)
     }
 }
