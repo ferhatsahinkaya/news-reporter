@@ -13,14 +13,14 @@ import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual.equalTo
-import org.junit.Ignore
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.Instant
 
-@Ignore // TODO Do not ignore test class
+@Disabled
 @ExtendWith(VertxExtension::class)
 class ReceiveTopHeadlineVerticleTest {
 //    private val zookeeperServer = TestingServer()
