@@ -19,7 +19,6 @@ import org.testcontainers.containers.KafkaContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.time.Instant
-import java.util.concurrent.TimeUnit.SECONDS
 
 @Testcontainers
 @ExtendWith(VertxExtension::class)
@@ -27,7 +26,7 @@ class ReceiveTopHeadlineVerticleIntegrationTest {
 
     @Container
     private val kafka = KafkaContainer()
-    private val topic = "the-topic-61"
+    private val topic = "the-topic-90"
 
     @BeforeEach
     fun setUp(vertx: Vertx, testContext: VertxTestContext) {
@@ -64,11 +63,9 @@ class ReceiveTopHeadlineVerticleIntegrationTest {
                     assertThat(it.body(), equalTo(message))
                     testContext.completeNow()
                 }
+        Thread.sleep(4000) // TODO Remove sleep
 
-        println("Before send")
         producer.send(ProducerRecord(topic, message))
-                .get(3, SECONDS)
-        println("After send")
-        Thread.sleep(10000)
+        producer.close()
     }
 }

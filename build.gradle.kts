@@ -44,8 +44,8 @@ dependencies {
     testImplementation("org.apache.kafka:kafka-clients:2.3.0")
     testImplementation("org.junit.vintage:junit-vintage-engine:5.5.2")
     testImplementation("org.junit.platform:junit-platform-launcher:1.5.2")
-    testImplementation("org.apache.curator:curator-framework:4.0.1")
-    testImplementation("org.apache.curator:curator-test:4.0.1")
+    testImplementation("org.apache.curator:curator-framework:4.2.0")
+    testImplementation("org.apache.curator:curator-test:4.2.0")
     testImplementation("org.testcontainers:kafka:1.12.3")
     testImplementation("org.testcontainers:junit-jupiter:1.12.3")
 
